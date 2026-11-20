@@ -1,0 +1,32 @@
+# Secrets
+nifi/credentials.env
+
+# Donnees volumineuses (on garde la version mini)
+data/raw/*
+!data/raw/*mini*
+!data/raw/.gitkeep
+
+# Rejets NiFi generes a l'execution
+data/errors/*
+!data/errors/.gitkeep
+
+# Runtime NiFi (volumes Docker)
+nifi/input/
+nifi/output/
+nifi/errors/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Logs et temporaires
+*.log
+*.tmp
+~$*
+*.pbix~
+
+# OS
+.DS_Store
+Thumbs.db
