@@ -1,0 +1,79 @@
+CREATE DATABASE fromagerie_db;USE fromagerie_db;SHOW TABLES;
+
+USE spotify_db;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS fromagerie (
+    codcli      INT,
+    genrecli    STRING,
+    nomcli      STRING,
+    prenomcli   STRING,
+    cpcli       STRING,     
+    villecli    STRING,
+    codcde      INT,
+    datcde      DATE,       
+    timbrecli   DOUBLE,
+    timbrecde   DOUBLE,
+    Nbcolis     DOUBLE,
+    cheqcli     DOUBLE,
+    barchive    INT,
+    bstock      INT,
+    codobj      INT,
+    qte         DOUBLE,
+    Colis       DOUBLE,
+    libobj      STRING,
+    Tailleobj   STRING,
+    Poidsobj    INT,
+    points      DOUBLE,
+    indispobj   INT,
+    libcondit   STRING,
+    prixcond    INT,
+    puobj       INT
+)
+
+ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t'
+LOCATION '/data/fromagerie';
+
+
+SELECT villecli, timbrecli, SUM(qte) AS total
+FROM fromagerie
+GROUP BY libobj
+ORDER BY total ASC
+LIMIT 100;
+
+
+CREATE TABLE fromagerie_part (
+    codcli      INT,
+    genrecli    STRING,
+    nomcli      STRING,
+    prenomcli   STRING,
+    cpcli       STRING,     
+    villecli    STRING,
+    codcde      INT,
+    datcde      DATE,       
+    timbrecli   DOUBLE,
+    timbrecde   DOUBLE,
+    Nbcolis     DOUBLE,
+    cheqcli     DOUBLE,
+    barchive    INT,
+    bstock      INT,
+    codobj      INT,
+    qte         DOUBLE,
+    Colis       DOUBLE,
+    libobj      STRING,
+    Tailleobj   STRING,
+    Poidsobj    INT,
+    points      DOUBLE,
+    indispobj   INT,
+    libcondit   STRING,
+    prixcond    INT,
+    puobj       INT
+)
+PARTITIONED BY (datcde DATE)
+ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t';
+
+SET hive.exec.dynamic.partition = true;
+SET hive.exec.dynamic.partition.mode = nonstrict;
+
+INSERT OVERWRITE TABLE fromagerie_part PARTITION (datcde)
+SELECT track_name, artist_name, streams, released_year
+FROM spotify;

@@ -41,3 +41,16 @@ Ouvrir un terminal dans ce dossier, puis :
 | 2 | `python clean.py` | Création de `dataw_fro_clean.csv` et `dataw_fro_rejets.csv` |
 
 `config.py` ne se lance pas : les deux scripts l'importent automatiquement.
+
+
+### Copier dataw_fro_clean.csv 
+
+`docker cp "chemin vers le doc\dataw_fro_clean.csv" hadoop-master:/home/`
+
+`docker exec hadoop-master hdfs dfs -mkdir -p /data/fromagerie`
+
+`docker exec hadoop-master hdfs dfs -put /home/dataw_fro_clean.csv /data/fromagerie/`
+
+`hdfs dfs -ls /data/fromagerie`
+
+
