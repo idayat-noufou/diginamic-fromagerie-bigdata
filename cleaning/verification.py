@@ -93,3 +93,27 @@ print(f"Lignes conservées     : {(~rejet).sum()}")
 print("\nRejets par raison:")
 # Une ligne peut avoir plusieurs motifs : on les sépare avant de compter
 print(motif.str.split(";").explode().loc[lambda s: s != ""].value_counts())
+
+
+
+print("\n=== NULL VALUES ===")
+
+print("\n=== colis ===")
+with pd.option_context("display.max_columns", None, "display.width", None):
+    print(df[df["Colis"].isna()])
+  
+print("\n=== nbcolis ===")   
+with pd.option_context("display.max_columns", None, "display.width", None):
+    print(df[df["Nbcolis"].isna()])
+    
+print("\n=== qte ===")      
+with pd.option_context("display.max_columns", None, "display.width", None):
+    print(df[df["qte"].isna()])
+
+print("\n=== timbrecli ===")    
+with pd.option_context("display.max_columns", None, "display.width", None):
+    print(df[df["timbrecli"].isna()])
+    
+print("\n=== timbrecde ===")       
+with pd.option_context("display.max_columns", None, "display.width", None):
+    print(df[df["timbrecde"].isna()])
