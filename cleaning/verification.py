@@ -95,8 +95,9 @@ print("\nRejets par raison:")
 print(motif.str.split(";").explode().loc[lambda s: s != ""].value_counts())
 
 
+print(df.dtypes)
 
-print("\n=== NULL VALUES ===")
+print("\n=== NULL VALUES details ===")
 
 print("\n=== colis ===")
 with pd.option_context("display.max_columns", None, "display.width", None):
