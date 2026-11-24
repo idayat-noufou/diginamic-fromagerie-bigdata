@@ -10,6 +10,9 @@ nifi/input/
 nifi/output/
 nifi/errors/
 
+# Fichier TSV regenere par hive/00_prepare_tsv.py
+hive/data/
+
 # Python
 __pycache__/
 *.pyc
