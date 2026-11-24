@@ -426,3 +426,92 @@ et [`exports/lot2b_pie_villes_2011_2016.csv`](../exports/lot2b_pie_villes_2011_2
 Scripts utilitaires : [`hive/00_prepare_tsv.py`](../hive/00_prepare_tsv.py) (CSV vers TSV),
 [`hive/export_excel.py`](../hive/export_excel.py) (résultat Beeline vers Excel),
 [`hive/export_pie_pdf.py`](../hive/export_pie_pdf.py) (résultat Beeline vers PDF).
+
+---
+
+## Étape 6 : requête A recodée en MapReduce streaming Python (LOT 3)
+
+**Objectif.** Reprendre l'une des deux analyses Hive et la recoder en MapReduce, pour vérifier
+le résultat par un calcul indépendant et comparer les deux approches. Le choix s'est porté sur
+la **requête A** : elle est déterministe, alors que la requête B comporte un tirage aléatoire.
+On peut donc comparer les deux résultats ligne par ligne.
+
+**Fichiers :** [`mapreduce/mapper.py`](../mapreduce/mapper.py),
+[`mapreduce/reducer.py`](../mapreduce/reducer.py), [`mapreduce/run_job.sh`](../mapreduce/run_job.sh),
+[`mapreduce/compare_hive.py`](../mapreduce/compare_hive.py). Procédure :
+[`mapreduce/run.md`](../mapreduce/run.md).
+
+### Le modèle MapReduce appliqué à la requête
+
+```text
+ Fichier TSV (HDFS)      MAP                   SHUFFLE & SORT          REDUCE
+ 134 945 lignes   ─►  filtre période   ─►   Hadoop trie et     ─►  additionne par commande
+                      et départements       regroupe par           et garde les 100
+                      émet (codcde,         codcde                 meilleures (heapq)
+                      qte, timbrecde…)
+                      15 620 paires         10 633 groupes         100 lignes
+```
+
+| Étape | Rôle | Équivalent Hive |
+|---|---|---|
+| **Map** (`mapper.py`) | Lit chaque ligne, garde celles de 2006-2010 et des départements 53, 61, 28, émet une paire clé / valeur : clé = `codcde`, valeur = quantité, `timbrecde`, ville, département, date | `WHERE` |
+| **Shuffle & sort** (Hadoop) | Trie toutes les paires par clé : les lignes d'une même commande arrivent groupées au reducer | Préparation du `GROUP BY` |
+| **Reduce** (`reducer.py`) | Tant que la clé ne change pas, additionne les quantités ; à chaque changement de clé, propose la commande terminée au top 100, tenu dans un tas (`heapq`) de 100 éléments | `GROUP BY` + `ORDER BY` + `LIMIT 100` |
+
+**Points de conception :**
+
+- **Un seul reducer** (`-D mapreduce.job.reduces=1`). Le top 100 est un classement global :
+  avec plusieurs reducers, chacun ne verrait qu'une partie des commandes.
+- **Un tas plutôt qu'un tri complet.** Le reducer ne garde en mémoire que les 100 meilleures
+  commandes rencontrées, quel que soit le nombre total de commandes : la mémoire utilisée reste
+  constante.
+- **Mêmes règles que Hive** : `timbrecde` pris une seule fois par commande ; mêmes critères de
+  classement (somme des quantités, puis `timbrecde`, puis `codcde`) ; quantité vide ignorée,
+  comme le fait `SUM()` en SQL.
+- **Même source** : le job lit le même fichier HDFS que la table Hive.
+
+### Commandes
+
+```powershell
+docker cp mapreduce hadoop-master:/tmp/mapreduce
+docker exec -it hadoop-master bash
+```
+
+```bash
+cd /tmp/mapreduce
+# Test local sans Hadoop : le tube "sort" simule le shuffle & sort
+cat /tmp/dataw_fro_clean.tsv | python3 mapper.py | sort | python3 reducer.py | head -5
+# Job sur le cluster
+bash run_job.sh
+```
+
+La commande `hadoop jar … -files mapper.py,reducer.py …` et ses options sont détaillées dans
+[`mapreduce/run.md`](../mapreduce/run.md).
+
+### Résultat
+
+| Contrôle | Valeur |
+|---|---|
+| `Map input records` | 134 945 (tout le fichier) |
+| `Map output records` | 15 620 lignes dans le périmètre |
+| `Reduce input groups` | 10 633 commandes, le même nombre que dans Hive |
+| `Reduce output records` | 100 |
+| Durée du job | environ 27 s au total (environ 19 à 21 s dans YARN), contre environ 67 s pour Hive |
+| Test local par tubes | 0,3 s, même résultat |
+| Comparaison avec Hive | **IDENTIQUES** : mêmes commandes, mêmes valeurs, même ordre |
+
+**Livrable :** [`mapreduce/output/top100_mapreduce.tsv`](../mapreduce/output/top100_mapreduce.tsv).
+
+La comparaison détaillée (volume de code, temps d'exécution, lisibilité, quand choisir quoi)
+fait l'objet d'un document dédié : [`docs/comparaison-hive-mapreduce.md`](comparaison-hive-mapreduce.md).
+
+**En résumé :** la requête Hive fait 14 lignes contre 64 pour le mapper et le reducer, soit
+environ 5 fois moins de code. Pourtant, le job écrit à la main est 2 fois plus rapide, parce
+qu'il fait en un seul job ce que Hive découpe en deux. Sur 19 Mo, un simple script Python local
+est 100 fois plus rapide que les deux : le cluster ne devient rentable que sur de très gros
+volumes.
+
+📸 **Captures :**
+
+1. Fin de la sortie de `run_job.sh` : compteurs du job, temps `real` et 10 premières commandes.
+2. Sortie de `compare_hive.py` : `RESULTAT : IDENTIQUES`.
