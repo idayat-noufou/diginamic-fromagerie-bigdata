@@ -12,6 +12,7 @@ def commandes_par_annee():
 
     df = pd.DataFrame(list(commandes), columns=['annee', 'codcde'])
     resultat = df.groupby('annee').size().reset_index(name='nb_commandes')
+    resultat.to_csv('q2_commandes_par_annee.csv', index=False)
     print(resultat)
 
     plt.bar(resultat['annee'], resultat['nb_commandes'])
