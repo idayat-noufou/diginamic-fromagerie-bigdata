@@ -1,25 +1,44 @@
 import happybase
 import pandas as pd
-import matplotlib.pyplot as plt
 
-def commandes_par_annee():
+
+# --------------en attendant de revoir le data prep ------------
+def nombre(valeur):
+    try:
+        return float(valeur)
+    except (ValueError, TypeError):
+        return 0.0
+# --------------------------------------------------------------
+
+def client_max_timbrecde():
     connection = happybase.Connection(host='localhost', port=9090)
     table = connection.table('fromagerie')
 
-    commandes = set()
-    for key, data in table.scan(row_start=b'2010', row_stop=b'2016'):
-        commandes.add((key[:4].decode(), data[b'order:codcde'].decode()))
+    lignes = []
+    for key, data in table.scan():
+        lignes.append({
+            'codcli': data[b'client:codcli'].decode(),
+            'nom': data[b'client:nom'].decode(),
+            'prenom': data[b'client:prenom'].decode(),
+            'codcde': data[b'order:codcde'].decode(),
+            'timbrecde': nombre(data[b'order:timbrecde']),
+            'qte': nombre(data[b'order:qte']),
+        })
+    df = pd.DataFrame(lignes)
 
-    df = pd.DataFrame(list(commandes), columns=['annee', 'codcde'])
-    resultat = df.groupby('annee').size().reset_index(name='nb_commandes')
-    print(resultat)
+    par_commande = df.drop_duplicates(subset=['codcli', 'codcde'])
+    frais = par_commande.groupby('codcli').agg(
+        nb_commandes=('codcde', 'count'),
+        total_timbrecde=('timbrecde', 'sum'),
+    )
+    frais['somme_quantites'] = df.groupby('codcli')['qte'].sum()
 
-    plt.bar(resultat['annee'], resultat['nb_commandes'])
-    plt.title('Nombre de commandes par année (2010-2015)')
-    plt.xlabel('Année')
-    plt.ylabel('Nombre de commandes')
-    plt.savefig('q2_commandes_par_annee.pdf')
+    top = frais.sort_values('total_timbrecde', ascending=False).head(1).reset_index()
+    top = top.merge(df[['codcli', 'nom', 'prenom']].drop_duplicates('codcli'), on='codcli')
+    #top.to_excel('q3_client_max_timbrecde.xlsx', index=False)
+    top.to_csv('q3_client_timbrecde.csv', index=False)
+    print(top)
     connection.close()
 
 if __name__ == "__main__":
-    commandes_par_annee()
+    client_max_timbrecde()
