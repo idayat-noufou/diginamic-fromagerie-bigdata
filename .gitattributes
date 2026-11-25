@@ -1,0 +1,3 @@
+# Scripts executes dans les conteneurs Linux : fins de ligne LF obligatoires
+*.sh text eol=lf
+mapreduce/*.py text eol=lf
