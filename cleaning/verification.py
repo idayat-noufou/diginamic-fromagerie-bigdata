@@ -118,3 +118,4 @@ with pd.option_context("display.max_columns", None, "display.width", None):
 print("\n=== timbrecde ===")       
 with pd.option_context("display.max_columns", None, "display.width", None):
     print(df[df["timbrecde"].isna()])
+    
