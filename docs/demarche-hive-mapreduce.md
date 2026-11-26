@@ -496,7 +496,7 @@ La commande `hadoop jar … -files mapper.py,reducer.py …` et ses options sont
 | `Map output records` | 15 620 lignes dans le périmètre |
 | `Reduce input groups` | 10 633 commandes, le même nombre que dans Hive |
 | `Reduce output records` | 100 |
-| Durée du job | environ 27 s au total (environ 19 à 21 s dans YARN), contre environ 67 s pour Hive |
+| Durée du job | 24 à 27 s au total selon l'exécution (environ 19 à 21 s dans YARN), contre 57 à 67 s pour Hive |
 | Test local par tubes | 0,3 s, même résultat |
 | Comparaison avec Hive | **IDENTIQUES** : mêmes commandes, mêmes valeurs, même ordre |
 
@@ -513,5 +513,7 @@ volumes.
 
 📸 **Captures :**
 
-1. Fin de la sortie de `run_job.sh` : compteurs du job, temps `real` et 10 premières commandes.
-2. Sortie de `compare_hive.py` : `RESULTAT : IDENTIQUES`.
+1. Fin de la sortie de `run_job.sh` : temps `real` et 10 premières commandes :
+   [`mapreduce/screenshots/mr_sortie_job_top100.png`](../mapreduce/screenshots/mr_sortie_job_top100.png).
+2. Sortie de `compare_hive.py` (`RESULTAT : IDENTIQUES`) :
+   [`mapreduce/screenshots/mr_comparaison_hive_identiques.png`](../mapreduce/screenshots/mr_comparaison_hive_identiques.png).

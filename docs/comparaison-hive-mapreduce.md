@@ -42,7 +42,13 @@ Mesures faites sur le cluster local (1 master et 2 slaves), sur le fichier quali
 |---|---|---|---|
 | Jobs YARN lancés | 2 | 1 | 0 |
 | Durée d'un job (interface YARN) | environ 27 s chacun | environ 19 à 21 s | — |
-| Durée totale vue par l'utilisateur | **environ 67 s** | **environ 27 s** | **0,3 s** |
+| Durée totale vue par l'utilisateur | **57 à 67 s** (environ 1 min) | **24 à 27 s** | **0,3 s** |
+
+Les durées varient d'une exécution à l'autre. Côté Hive, 57,5 s correspond au temps affiché par
+Beeline (capture de la requête A) et 67 s à un chronométrage complet avec `time beeline`, qui
+inclut le démarrage du client et la connexion à HiveServer2. Côté MapReduce, les deux exécutions
+chronométrées avec `time hadoop jar` ont duré 23,7 s (capture) et 26,5 s. Dans tous les cas, le
+job MapReduce écrit à la main est **plus de 2 fois plus rapide** que Hive sur cette requête.
 
 **Pourquoi Hive est plus lent ici.** Hive traduit la requête en 2 jobs MapReduce enchaînés :
 le premier fait le `WHERE` et le `GROUP BY`, le second fait le `ORDER BY` global et le
