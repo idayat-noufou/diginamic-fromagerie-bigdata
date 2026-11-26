@@ -3,7 +3,6 @@ nifi/credentials.env
 
 # Rejets NiFi generes a l'execution
 data/errors/*
-!data/errors/.gitkeep
 
 # Runtime NiFi (volumes Docker)
 nifi/input/
