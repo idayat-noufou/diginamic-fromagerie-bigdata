@@ -4,16 +4,16 @@ Chaine Big Data complete (NiFi, Hive, MapReduce, HBase, PowerBI) sur la stack Do
 
 ## Correspondance dossier / LOT
 
-| LOT | Dossier    | Livrable                            |
-| --- | ---------- | ----------------------------------- |
-| 0   | cleaning/  | clean_data.py + dataw_fro_clean.csv |
-| 1   | nifi/      | flow.json + captures                |
-| 2   | hive/      | scripts .hql + captures Beeline     |
-| 3   | mapreduce/ | mapper.py, reducer.py               |
-| 4   | hbase/     | scripts happybase                   |
-| 5   | powerbi/   | dashboard.pbix + PDF + model.md     |
+| LOT | Dossier    | Livrable                               |
+| --- | ---------- | -------------------------------------- |
+| 0   | cleaning/  | clean_data.py + dataw_fro_clean.csv    |
+| 1   | nifi/      | flow.json + captures                   |
+| 2   | hive/      | scripts .hql + captures Beeline        |
+| 3   | mapreduce/ | mapper.py, reducer.py                  |
+| 4   | hbase/     | scripts happybase + exports + captures |
+| 5   | powerbi/   | dashboard.pbix + PDF + model.md        |
 
-Autres dossiers :  docs/ (dossier de synthese), soutenance/ (support).
+Autres dossiers :  docs/ (dossier de synthese contenant les explications pour chaques parties), soutenance/ (support).
 
 ## Prerequis
 
