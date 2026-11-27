@@ -47,4 +47,4 @@ Une ligne HBase = une ligne du CSV = un article d'une commande.
 `01_create_table.py`, `02_load.py`, `03_query1_nantes_2020.py`, `04_query2_commandes_par_annee.py`, `05_query3_client_max_timbrecde.py`, `06_export_lignes.py` (export complet pour PowerBI), ; exports `q1_nantes_2020.csv`, `q2_commandes_par_annee.pdf` et `.csv`, `q3_client_max_timbrecde.xlsx` et `q3_client_timbrecde.csv`, `lignes.csv`.
 
 > info
-> Pour plus de détail, voir [hbase/demarche.md](hbase/demarche.md)
+> Pour plus de détail, voir [hbase/demarche.md](/hbase/demarche.md)
