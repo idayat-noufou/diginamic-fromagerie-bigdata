@@ -10,6 +10,7 @@ import unicodedata
 INPUT_FILE  = "dataw_fro03.csv"
 OUTPUT_OK   = "dataw_fro_clean.csv"
 OUTPUT_REJ  = "dataw_fro_rejets.csv"
+CLE_HBASE = ["datcde", "codcde", "codobj"]
 
 def load_data():
     """Lit le fichier brut (codes postaux lus comme texte pour garder les zéros initiaux)."""
@@ -111,5 +112,10 @@ def compute_motif(df):
     for col in COLS_NULL_KO:
         vide = df[col].isna()
         motif += vide.map({True: f"{col}_vide;", False: ""})
+    
+    # Clé HBase en double (date + commande + objet) : la 2e ligne écraserait la 1re.
+    valides = motif == ""
+    doublon_cle = df[valides].duplicated(CLE_HBASE).reindex(df.index, fill_value=False)
+    motif += doublon_cle.map({True: "doublon_cle_hbase;", False: ""})
 
     return motif
